@@ -109,17 +109,21 @@ void GPIOPortF_Handler(void)
 {
 	//switch debounce
 	NVIC_EN0_R &= ~0x40000000;
-	SysCtlDelay(10667);					// Delay for a while
+	SysCtlDelay(53333);					// Delay for a while
 	NVIC_EN0_R |= 0x40000000;
 	
-	//SW1 is pressed (PF0)
+	//SW1 is pressed (PF4)
 	if(GPIO_PORTF_RIS_R&0x10)
 	{
-		// acknowledge flag for PF0
-		GPIOIntClear(GPIO_PORTF_BASE, GPIO_PIN_4);		//GPIO_PORTF_ICR_R |= 0x10; 
+		// acknowledge flag for PF4
+		GPIOIntClear(GPIO_PORTF_BASE, GPIO_PIN_4);		//GPIO_PORTF_ICR_R |= 0x01; 
 		
-		// counter incremented by 1
-		count++;
+		//SW2 is pressed
+		if(GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_4)== 0x00)
+		{
+			//counter incremented by 1
+			count++;
+		}
 	}
 	
 	//SW2 is pressed (PF4)
@@ -128,63 +132,11 @@ void GPIOPortF_Handler(void)
 		// acknowledge flag for PF0
 		GPIOIntClear(GPIO_PORTF_BASE, GPIO_PIN_0);		//GPIO_PORTF_ICR_R |= 0x01; 
 		
-		//counter decremented by 1
-		count--;
+		//SW2 is pressed
+		if(GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_0)== 0x00)
+		{
+			//counter incremented by 1
+			count--;
+		}
 	}
-}
-
-int main(void)
-{
-	
-		//initialize the GPIO ports	
-		PortFunctionInit();
-		
-		//configure the GPIOF interrupt
-		Interrupt_Init();
-		
-//	//Red LED on
-//				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIO_PIN_1);
-//				//Blue LED on
-//				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
-    //
-    // Loop forever.
-    //
-    while(1)
-    {
-			// if 0th bit is 1 & 1st is 1
-			if (((count&0x01)== 0x01 & (count&0x02)== 0x02))
-			{
-				//Red LED on
-				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIO_PIN_1);
-				//Blue LED on
-				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
-			}
-			
-			// if 1st bit is 1 & 0th bit is 0
-			else if (((count&0x02)== 0x02 & (count&0x01)== 0x00))
-			{
-				//Blue LED on
-				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
-				// Red LED off
-				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x00);
-			}
-		
-			// if 1st bit is 0 & 0th bit is 1
-			if (((count&0x02)== 0x00 & (count&0x01)== 0x01))
-			{
-				// Red LED on
-				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIO_PIN_1);
-				//Blue LED off
-				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x00);
-			}
-			
-			// if 1st & 0th bits are 0
-			else	
-			{
-				// Red LED off
-				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x00);
-				//Blue LED off
-				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x00);
-			}
-    }
 }
