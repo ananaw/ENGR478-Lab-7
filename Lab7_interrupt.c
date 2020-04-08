@@ -140,3 +140,59 @@ void GPIOPortF_Handler(void)
 		}
 	}
 }
+
+int main(void)
+{
+	
+		//initialize the GPIO ports	
+		PortFunctionInit();
+		
+		//configure the GPIOF interrupt
+		Interrupt_Init();
+		
+//	//Red LED on
+//				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIO_PIN_1);
+//				//Blue LED on
+//				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
+    //
+    // Loop forever.
+    //
+    while(1)
+    {
+			// if 0th bit is 1 & 1st is 1
+			if (((count&0x01)== 0x01 & (count&0x02)== 0x02))
+			{
+				//Red LED on
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIO_PIN_1);
+				//Blue LED on
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
+			}
+			
+			// if 1st bit is 1 & 0th bit is 0
+			else if (((count&0x02)== 0x02 & (count&0x01)== 0x00))
+			{
+				//Blue LED on
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
+				// Red LED off
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x00);
+			}
+		
+			// if 1st bit is 0 & 0th bit is 1
+			else if (((count&0x02)== 0x00 & (count&0x01)== 0x01))
+			{
+				// Red LED on
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIO_PIN_1);
+				//Blue LED off
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x00);
+			}
+			
+			// if 1st & 0th bits are 0
+			else	
+			{
+				// Red LED off
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x00);
+				//Blue LED off
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x00);
+			}
+    }
+}
