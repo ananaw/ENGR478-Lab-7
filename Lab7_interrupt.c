@@ -48,6 +48,170 @@
 #include "inc/tm4c123gh6pm.h"					// manually added
 
 //*****************************************************************************
+/*volatile int32_t count = 0;
+
+void
+PortFunctionInit(void)
+{
+    //
+    // Enable Peripheral Clocks 
+    //
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOF);
+
+    //
+    // Enable pin PF0 for GPIOInput (SW1)
+    //
+    //
+    // First open the lock and select the bits we want to modify in the GPIO commit register.
+    //
+    HWREG(GPIO_PORTF_BASE + GPIO_O_LOCK) = GPIO_LOCK_KEY;
+    HWREG(GPIO_PORTF_BASE + GPIO_O_CR) = 0x1;
+
+    //
+    // Now modify the configuration of the pins that we unlocked.
+    //
+    GPIOPinTypeGPIOInput(GPIO_PORTF_BASE, GPIO_PIN_0);
+
+    //
+    // Enable pin PF4 for GPIOInput (SW1)
+    //
+    GPIOPinTypeGPIOInput(GPIO_PORTF_BASE, GPIO_PIN_4);
+
+    //
+    // Enable pin PF1 for GPIOOutput (RED)
+    //
+    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_1);
+		
+		//
+    // Enable pin PF2 for GPIOOutput (BLUE)
+    //
+    GPIOPinTypeGPIOOutput(GPIO_PORTF_BASE, GPIO_PIN_2);
+		
+		// Enable internal pull-up on PF0 and PF4, 
+		GPIO_PORTF_PUR_R |= 0x11;
+}
+
+void 
+Interrupt_Init(void)
+{
+	IntEnable(INT_GPIOF); 							// enable interrupt 30 in NVIC (GPIOF) Code: NVIC_EN0_R |= 0x40000000;
+	IntPrioritySet(INT_GPIOF, 0x00);		// configure GPIOF interrupt priority as 0: NVIC_PRI7_R &= ~0x00E00000;
+	GPIO_PORTF_IM_R |= 0x11;						// arm interrupt on PF0 and PF4
+	GPIO_PORTF_IS_R &= ~0x11;						// PF0 and PF4 are edge-sensitive
+	GPIO_PORTF_IBE_R &= ~0x11;					// PF0 and PF4 not both edges trigger, depends on IEV register
+	GPIO_PORTF_IEV_R &= ~0x11;					// PF0 and PF4 falling edge event
+	IntMasterEnable();									// globally enable interrupt  __asm("    cpsie   i\n")
+}
+
+//interrupt handler
+void GPIOPortF_Handler(void)
+{
+	//switch debounce
+	NVIC_EN0_R &= ~0x40000000;	// Disable Port F interrupt
+	SysCtlDelay(53333);					// Delay for a while
+	NVIC_EN0_R |= 0x40000000;		// Enable Port F interrupt
+	
+	//SW1 has action (PF4)
+	if(GPIO_PORTF_RIS_R&0x10)
+	{
+		//acknowledge flag for PF4
+		GPIOIntClear(GPIO_PORTF_BASE, GPIO_PIN_4);		//GPIO_PORTF_ICR_R |= 0x10; 
+		
+		//SW1 is pressed
+		if(GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_4)== 0x00)
+		{
+			//counter incremented by 1
+			count++;
+		}
+	}
+
+	
+	//SW2 has action (PF0)
+  if(GPIO_PORTF_RIS_R&0x01)
+	{
+		//acknowledge flag for PF0
+		GPIOIntClear(GPIO_PORTF_BASE, GPIO_PIN_0);		//GPIO_PORTF_ICR_R |= 0x01; 
+		
+		//SW2 is pressed
+		if(GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_0)== 0x00)
+		{
+			//counter incremented by 1
+			count--;
+		}
+		
+		//SW2 pressed and count < 0
+		if((count < 0)&(GPIOPinRead(GPIO_PORTF_BASE, GPIO_PIN_0)== 0x00))
+		{
+			//set count = 3 to loop
+			count = 0x03;
+		}
+	}
+	
+}
+
+int main(void)
+{
+	
+		//initialize the GPIO ports	
+		PortFunctionInit();
+		
+		//configure the GPIOF interrupt
+		Interrupt_Init();
+		
+//	//Red LED on
+//				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIO_PIN_1);
+//				//Blue LED on
+//				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
+    //
+    // Loop forever.
+    //
+    while(1)
+    {
+			//if 1st & 0th bits are 0
+			if (count == 0x00)
+			{
+				//Red LED off
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x00);
+				//Blue LED off
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x00);
+			}
+			
+			//if 1st bit is 0 & 0th bit is 1, or 0x01
+			else if (count == 0x01)
+			{
+				//Red LED on
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIO_PIN_1);
+				//Blue LED off
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, 0x00);
+			}
+			
+			//if 1st bit is 1 & 0th bit is 0, or 0x02
+			else if (count == 0x02)
+			{
+				//Blue LED on
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
+				//Red LED off
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, 0x00);
+			}
+			
+			//if 0th bit is 1 & 1st is 1, or 0x03
+			else if (count == 0x03)
+			{
+				//Red LED on
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIO_PIN_1);
+				//Blue LED on
+				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
+			}
+			
+			//count > 0
+			else	
+			{
+				// reset to 0
+				count = 0x00;
+			}
+    }
+}
+*/
 volatile uint32_t count = 0;
 
 void
@@ -160,7 +324,7 @@ int main(void)
     while(1)
     {
 			// if 0th bit is 1 & 1st is 1
-			if (((count&0x01)== 0x01 & (count&0x02)== 0x02))
+			if ((count&0x03)== 0x03)
 			{
 				//Red LED on
 				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIO_PIN_1);
@@ -169,7 +333,7 @@ int main(void)
 			}
 			
 			// if 1st bit is 1 & 0th bit is 0
-			else if (((count&0x02)== 0x02 & (count&0x01)== 0x00))
+			else if ((count&0x02)== 0x02)
 			{
 				//Blue LED on
 				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_2, GPIO_PIN_2);
@@ -178,7 +342,7 @@ int main(void)
 			}
 		
 			// if 1st bit is 0 & 0th bit is 1
-			else if (((count&0x02)== 0x00 & (count&0x01)== 0x01))
+			else if ((count&0x01)== 0x01)
 			{
 				// Red LED on
 				GPIOPinWrite(GPIO_PORTF_BASE, GPIO_PIN_1, GPIO_PIN_1);
